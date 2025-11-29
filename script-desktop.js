@@ -47,6 +47,7 @@ function init() {
   // Colors from blue to purple gradient
   const colors = new Float32Array(particleCount * 3);
   for (let i = 0; i < particleCount; i++) {
+    // interpolate from blue (0,0,1) to purple (0.5,0,1)
     let t = i / particleCount;
     colors[i * 3] = 0.5 * t; // R from 0 to 0.5
     colors[i * 3 + 1] = 0; // G
@@ -66,14 +67,11 @@ function init() {
   scene.add(particles);
 
   window.addEventListener("resize", onWindowResize);
-
-  // POINTER events instead of mouse events
-  window.addEventListener("pointermove", onPointerMove);
-  window.addEventListener("pointerdown", onPointerDown);
-  window.addEventListener("pointerup", onPointerUp);
-  window.addEventListener("pointercancel", onPointerUp);
-  window.addEventListener("pointerleave", onPointerUp);
-  window.addEventListener("pointermove", onPointerDrag);
+  window.addEventListener("mousemove", onMouseMove);
+  window.addEventListener("mousedown", onMouseDown);
+  window.addEventListener("mouseup", onMouseUp);
+  window.addEventListener("mouseleave", onMouseUp);
+  window.addEventListener("mousemove", onMouseDrag);
 }
 
 function onWindowResize() {
@@ -82,26 +80,27 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function onPointerMove(event) {
+function onMouseMove(event) {
+  // Normalize mouse position to range [-1,1]
   mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
 
-function onPointerDown(event) {
+function onMouseDown(event) {
   startAudio();
   startX = event.clientX;
 }
 
-function onPointerUp(event) {
+function onMouseUp(event) {
   stopAudio();
   startX = null;
 }
 
-function onPointerDrag(event) {
+function onMouseDrag(event) {
   if (isPlaying && startX !== null) {
     let deltaX = event.clientX - startX;
     let playbackRate = 1 + deltaX / 200; // speed control
-    playbackRate = Math.min(Math.max(playbackRate, 0.25), 3); // clamp
+    playbackRate = Math.min(Math.max(playbackRate, 0.25), 3); // clamp between 0.25x and 3x
     if (oscillator) oscillator.playbackRate.value = playbackRate;
   }
 }
@@ -124,8 +123,10 @@ function startAudio() {
 
   oscillator.start();
 
+  // Add playbackRate property for speed control
   oscillator.playbackRate = { value: 1 };
 
+  // Using playbackRate to change frequency for demo (simulate speed change)
   const originalFreq = 440;
   function updateFreq() {
     if (!oscillator) return;
@@ -155,14 +156,17 @@ function stopAudio() {
 function animate() {
   requestAnimationFrame(animate);
 
+  // On hover, particles shift opposite mouse movement
   const positions = particles.geometry.attributes.position.array;
   for (let i = 0; i < particleCount; i++) {
     let ix = i * 3;
     let iy = i * 3 + 1;
 
+    // Move opposite to mouse direction with a subtle easing
     positions[ix] += -mouse.x * hoverForce;
     positions[iy] += -mouse.y * hoverForce;
 
+    // Keep particles within bounds (-100 to 100)
     positions[ix] = THREE.MathUtils.clamp(positions[ix], -100, 100);
     positions[iy] = THREE.MathUtils.clamp(positions[iy], -100, 100);
   }
