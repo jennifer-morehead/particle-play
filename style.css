@@ -1,0 +1,47 @@
+body,
+html {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background: black;
+  height: 100vh;
+  width: 100vw;
+  user-select: none;
+}
+
+canvas {
+  display: block;
+}
+
+#info-text {
+  position: fixed;
+  top: 40px;
+  left: 20px;
+  color: white;
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  pointer-events: none; /* so it doesn't block mouse events */
+  user-select: none;
+  z-index: 10;
+}
+
+#back-link {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  color: rgb(155, 155, 155);
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  text-decoration: none;
+  background: rgba(0, 0, 0, 0.5);
+  padding: 6px 10px;
+  border-radius: 4px;
+  z-index: 100;
+  user-select: none;
+  transition: background-color 0.3s ease;
+}
+
+#back-link:hover {
+  color: white;
+  background: rgba(255, 255, 255, 0.2);
+}
